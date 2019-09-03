@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using WebAPIHelper.Models;
 
 namespace WebAPIHelper
@@ -95,22 +96,25 @@ namespace WebAPIHelper
 
         public static CustomResponse GetResponseOrException(this HttpWebRequest http)
         {
+            return http.GetResponseOrExceptionAsync().Result;
+        }
+
+        public static CustomResponse<T> GetResponseOrException<T>(this HttpWebRequest http)
+        {
+            return GetResponseOrExceptionAsync<T>(http).Result;
+        }
+
+        public static async Task<CustomResponse> GetResponseOrExceptionAsync(this HttpWebRequest http)
+        {
             var ret = new CustomResponse();
             try
             {
-                http.GetResponse();
+                await http.GetResponseAsync();
                 ret.ResponseType = ResponseType.SUCCESS;
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                using (var stream = ex.Response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        ret.ResponseType = ResponseType.ERROR;
-                        ret.Message = reader.ReadToEnd();
-                    }
-                }
+                return GetException(ex);
             }
             catch (Exception ex)
             {
@@ -119,12 +123,13 @@ namespace WebAPIHelper
             return ret;
         }
 
-        public static CustomResponse<T> GetResponseOrException<T>(this HttpWebRequest http)
+        public static async Task<CustomResponse<T>> GetResponseOrExceptionAsync<T>(this HttpWebRequest http)
         {
             var ret = new CustomResponse<T>();
+
             try
             {
-                using (var response = (HttpWebResponse)http.GetResponse())
+                using (var response = await http.GetResponseAsync())
                 {
                     using (var data = response.GetResponseStream())
                     {
@@ -140,19 +145,29 @@ namespace WebAPIHelper
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                using (var stream = ex.Response.GetResponseStream())
-                {
-                    using (var reader = new StreamReader(stream))
-                    {
-                        ret.ResponseType = ResponseType.ERROR;
-                        ret.Message = reader.ReadToEnd();
-                    }
-                }
+                ret = (CustomResponse<T>)GetException(ex);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
+            return ret;
+        }
+
+        private static CustomResponse GetException(WebException ex)
+        {
+            var ret = new CustomResponse();
+
+            using (var stream = ex.Response.GetResponseStream())
+            {
+                using (var reader = new StreamReader(stream))
+                {
+                    ret.ResponseType = ResponseType.ERROR;
+                    ret.Message = reader.ReadToEnd();
+                }
+            }
+
             return ret;
         }
     }

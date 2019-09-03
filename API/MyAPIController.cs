@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
 using System;
+using System.Threading;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,6 +15,8 @@ namespace API
         {
             try
             {
+                Thread.Sleep(5000);
+
                 return Ok(new TestResponse()
                 {
                     intValue = number,
@@ -31,6 +34,9 @@ namespace API
         {
             try
             {
+                var i = 0;
+                _ = 9 / i;
+
                 return Ok(new TestResponse()
                 {
                     intValue = information.i,
