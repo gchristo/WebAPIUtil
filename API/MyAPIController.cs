@@ -14,11 +14,11 @@ namespace API
         {
             try
             {
-                return new TestResponse()
+                return Ok(new TestResponse()
                 {
                     intValue = number,
                     stringValue = text
-                };
+                });
             }
             catch (Exception e)
             {
@@ -31,11 +31,11 @@ namespace API
         {
             try
             {
-                return new TestResponse()
+                return Ok(new TestResponse()
                 {
                     intValue = information.i,
                     stringValue = information.s
-                };
+                });
             }
             catch (Exception e)
             {
