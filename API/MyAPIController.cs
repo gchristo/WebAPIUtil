@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Models;
+using System;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,23 +10,37 @@ namespace API
     public class MyAPIController : Controller
     {
         [HttpGet]
-        public TestResponse Get([FromQuery]int number, [FromQuery]string text)
+        public ActionResult<TestResponse> Get([FromQuery]int number, [FromQuery]string text)
         {
-            return new TestResponse()
+            try
             {
-                intValue = number,
-                stringValue = text
-            };
+                return new TestResponse()
+                {
+                    intValue = number,
+                    stringValue = text
+                };
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPost]
-        public TestResponse Post([FromBody]TestRequestBody information)
+        public ActionResult<TestResponse> Post([FromBody]TestRequestBody information)
         {
-            return new TestResponse()
+            try
             {
-                intValue = information.i,
-                stringValue = information.s
-            };
+                return new TestResponse()
+                {
+                    intValue = information.i,
+                    stringValue = information.s
+                };
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 }
