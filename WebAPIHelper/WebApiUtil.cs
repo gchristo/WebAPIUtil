@@ -1,9 +1,9 @@
-using WebAPIHelper.Models;
 using Newtonsoft.Json;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
+using WebAPIHelper.Models;
 
 namespace WebAPIHelper
 {
@@ -17,10 +17,7 @@ namespace WebAPIHelper
 
     public static class WebApiUtil
     {
-        static WebApiUtil()
-        {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-        }
+        static WebApiUtil() { }
 
         public static string ToQueryString<T>(this T obj) where T : class
         {
@@ -122,7 +119,7 @@ namespace WebAPIHelper
             return ret;
         }
 
-        public static CustomResponse<T> GetResponseOrException<T>(this HttpWebRequest http) where T : class, new()
+        public static CustomResponse<T> GetResponseOrException<T>(this HttpWebRequest http)
         {
             var ret = new CustomResponse<T>();
             try
