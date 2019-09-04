@@ -15,8 +15,6 @@ namespace API
         {
             try
             {
-                Thread.Sleep(5000);
-
                 return Ok(new TestResponse()
                 {
                     intValue = number,
@@ -46,6 +44,20 @@ namespace API
             catch (Exception e)
             {
                 return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPost("async")]
+        public ActionResult<DateTime> Post([FromBody]int seconds)
+        {
+            try
+            {
+                Thread.Sleep(seconds * 1000);
+                return DateTime.Now;
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

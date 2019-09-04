@@ -145,7 +145,9 @@ namespace WebAPIHelper
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                ret = (CustomResponse<T>)GetException(ex);
+                var r = GetException(ex);
+                ret.Message = r.Message;
+                ret.ResponseType = r.ResponseType;
             }
             catch (Exception ex)
             {
