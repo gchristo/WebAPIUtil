@@ -8,6 +8,9 @@ using WebAPIHelper.Models;
 
 namespace WebAPIHelper
 {
+    /// <summary>
+    /// Enum with all supported HttpMethods
+    /// </summary>
     public enum HttpMethod
     {
         GET,
@@ -16,10 +19,18 @@ namespace WebAPIHelper
         DELETE
     }
 
+    /// <summary>
+    /// Class with main methods to consume an API
+    /// </summary>
     public static class WebApiUtil
     {
-        static WebApiUtil() { }
-
+        /// <summary>
+        /// Converts any single level object do a http query string
+        /// and then appends a '?' to the beginning
+        /// </summary>
+        /// <typeparam name="T">Type of object to convert to query string</typeparam>
+        /// <param name="obj">Instance to convert to query string</param>
+        /// <returns>A string in data string format</returns>
         public static string ToQueryString<T>(this T obj) where T : class
         {
             string ret = "";
@@ -50,12 +61,26 @@ namespace WebAPIHelper
             return ret;
         }
 
+        /// <summary>
+        /// Create a http request
+        /// </summary>
+        /// <typeparam name="T">Type of object to convert to query string</typeparam>
+        /// <param name="method">Http method to be used in the request</param>
+        /// <param name="url">API url</param>
+        /// <param name="queryStringObject">Instance to convert to query string</param>
+        /// <returns>A new HttpWebRequest</returns>
         public static HttpWebRequest CreateRequest<T>(HttpMethod method, string url, T queryStringObject) where T : class
         {
             url += queryStringObject.ToQueryString();
             return CreateRequest(method, url);
         }
 
+        /// <summary>
+        /// Create a http request
+        /// </summary>
+        /// <param name="method">Http method to be used in the request</param>
+        /// <param name="url">API url</param>
+        /// <returns>A new HttpWebRequest</returns>
         public static HttpWebRequest CreateRequest(HttpMethod method, string url)
         {
             var http = (HttpWebRequest)WebRequest.Create(url);
@@ -63,6 +88,12 @@ namespace WebAPIHelper
             return http;
         }
 
+        /// <summary>
+        /// Append headers to the request
+        /// </summary>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <param name="headers">string array of headers</param>
+        /// <returns>The same instance of HttpWebRequest that was passed from http parameter</returns>
         public static HttpWebRequest AddHeaders(this HttpWebRequest http, params string[] headers)
         {
             if (headers != null)
@@ -78,6 +109,13 @@ namespace WebAPIHelper
             return http;
         }
 
+        /// <summary>
+        /// Add a json body to the request
+        /// </summary>
+        /// <typeparam name="T">Type of body</typeparam>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <param name="body">Instance of anything you need to send as body</param>
+        /// <returns>The same instance of HttpWebRequest that was passed from http parameter</returns>
         public static HttpWebRequest AddBody<T>(this HttpWebRequest http, T body)
         {
             if (body != null)
@@ -94,16 +132,33 @@ namespace WebAPIHelper
             return http;
         }
 
+        /// <summary>
+        /// Executes the HttpWebRequest and return if the request successded or failed.
+        /// </summary>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <returns>Instance of Custom Reponse</returns>
         public static CustomResponse GetResponseOrException(this HttpWebRequest http)
         {
             return http.GetResponseOrExceptionAsync().Result;
         }
 
+        /// <summary>
+        /// Executes the HttpWebRequest and return if the request successded or failed.
+        /// Also returns the value from the request
+        /// </summary>
+        /// <typeparam name="T">Type of the return value</typeparam>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <returns>Instance of Custom Reponse</returns>
         public static CustomResponse<T> GetResponseOrException<T>(this HttpWebRequest http)
         {
             return GetResponseOrExceptionAsync<T>(http).Result;
         }
 
+        /// <summary>
+        /// Executes the HttpWebRequest and return if the request successded or failed.
+        /// </summary>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <returns>Instance of Custom Reponse</returns>
         public static async Task<CustomResponse> GetResponseOrExceptionAsync(this HttpWebRequest http)
         {
             var ret = new CustomResponse();
@@ -123,6 +178,13 @@ namespace WebAPIHelper
             return ret;
         }
 
+        /// <summary>
+        /// Executes the HttpWebRequest and return if the request successded or failed.
+        /// Also returns the value from the request
+        /// </summary>
+        /// <typeparam name="T">Type of the return value</typeparam>
+        /// <param name="http">Any instance of HttpWebRequest</param>
+        /// <returns>Instance of Custom Reponse</returns>
         public static async Task<CustomResponse<T>> GetResponseOrExceptionAsync<T>(this HttpWebRequest http)
         {
             var ret = new CustomResponse<T>();
@@ -157,6 +219,11 @@ namespace WebAPIHelper
             return ret;
         }
 
+        /// <summary>
+        /// Extracts an error message from a WebException
+        /// </summary>
+        /// <param name="ex">Web exception to be handled</param>
+        /// <returns>Instance of Custom Response with response type = ERROR</returns>
         private static CustomResponse GetException(WebException ex)
         {
             var ret = new CustomResponse();
