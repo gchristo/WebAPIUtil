@@ -71,6 +71,10 @@ namespace WebAPIHelper
         /// <returns>A new HttpWebRequest</returns>
         public static HttpWebRequest CreateRequest<T>(HttpMethod method, string url, T queryStringObject) where T : class
         {
+			if (queryStringObject == null)
+			{
+				throw new ArgumentNullException(nameof(queryStringObject));
+			}
             url += queryStringObject.ToQueryString();
             return CreateRequest(method, url);
         }
@@ -161,11 +165,10 @@ namespace WebAPIHelper
         /// <returns>Instance of Custom Reponse</returns>
         public static async Task<CustomResponse> GetResponseOrExceptionAsync(this HttpWebRequest http)
         {
-            var ret = new CustomResponse();
             try
             {
                 await http.GetResponseAsync();
-                ret.ResponseType = ResponseType.SUCCESS;
+                return CustomResponse.Success();
             }
             catch (WebException ex) when (ex.Response != null)
             {
@@ -173,9 +176,8 @@ namespace WebAPIHelper
             }
             catch (Exception ex)
             {
-                throw ex;
+                return CustomResponse.Error(ex.Message);
             }
-            return ret;
         }
 
         /// <summary>
@@ -187,8 +189,6 @@ namespace WebAPIHelper
         /// <returns>Instance of Custom Reponse</returns>
         public static async Task<CustomResponse<T>> GetResponseOrExceptionAsync<T>(this HttpWebRequest http)
         {
-            var ret = new CustomResponse<T>();
-
             try
             {
                 using (var response = await http.GetResponseAsync())
@@ -198,25 +198,21 @@ namespace WebAPIHelper
                         using (var stream = new StreamReader(data))
                         {
                             var json = stream.ReadToEnd();
+                            var o = JsonConvert.DeserializeObject<T>(json);
 
-                            ret.ResponseType = ResponseType.SUCCESS;
-                            ret.ReturnValue = JsonConvert.DeserializeObject<T>(json);
+                            return CustomResponse<T>.Success(o);
                         }
                     }
                 }
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                var r = GetException(ex);
-                ret.Message = r.Message;
-                ret.ResponseType = r.ResponseType;
+                return new CustomResponse<T>(GetException(ex));
             }
             catch (Exception ex)
             {
-                throw ex;
+                return CustomResponse<T>.Error(ex.Message);
             }
-
-            return ret;
         }
 
         /// <summary>
@@ -226,18 +222,13 @@ namespace WebAPIHelper
         /// <returns>Instance of Custom Response with response type = ERROR</returns>
         private static CustomResponse GetException(WebException ex)
         {
-            var ret = new CustomResponse();
-
             using (var stream = ex.Response.GetResponseStream())
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    ret.ResponseType = ResponseType.ERROR;
-                    ret.Message = reader.ReadToEnd();
+                    return CustomResponse.Error(reader.ReadToEnd());
                 }
             }
-
-            return ret;
         }
     }
 }

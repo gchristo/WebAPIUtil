@@ -56,7 +56,6 @@ namespace TestNetFramework
             Console.WriteLine("TotalTime t1: " + t1.Result.ReturnValue.Subtract(startT1));
             Console.WriteLine("TotalTime t2: " + t2.Result.ReturnValue.Subtract(startT2));
             Console.WriteLine("TotalTime t3: " + t3.Result.ReturnValue.Subtract(startT3));
-
         }
 
         private static void TestWithBody()
