@@ -88,6 +88,7 @@ namespace WebAPIHelper
         public static HttpWebRequest CreateRequest(HttpMethod method, string url)
         {
             var http = (HttpWebRequest)WebRequest.Create(url);
+			http.ContentLength = 0;
             http.Method = method.ToString();
             return http;
         }
