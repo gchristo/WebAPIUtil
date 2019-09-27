@@ -71,10 +71,10 @@ namespace WebAPIHelper
         /// <returns>A new HttpWebRequest</returns>
         public static HttpWebRequest CreateRequest<T>(HttpMethod method, string url, T queryStringObject) where T : class
         {
-			if (queryStringObject == null)
-			{
-				throw new ArgumentNullException(nameof(queryStringObject));
-			}
+            if (queryStringObject == null)
+            {
+                throw new ArgumentNullException(nameof(queryStringObject));
+            }
             url += queryStringObject.ToQueryString();
             return CreateRequest(method, url);
         }
@@ -88,7 +88,7 @@ namespace WebAPIHelper
         public static HttpWebRequest CreateRequest(HttpMethod method, string url)
         {
             var http = (HttpWebRequest)WebRequest.Create(url);
-			http.ContentLength = 0;
+            http.ContentLength = 0;
             http.Method = method.ToString();
             return http;
         }
@@ -173,7 +173,7 @@ namespace WebAPIHelper
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                return GetException(ex);
+                return CustomResponse.Error(ex.GetErrorMessage());
             }
             catch (Exception ex)
             {
@@ -208,7 +208,7 @@ namespace WebAPIHelper
             }
             catch (WebException ex) when (ex.Response != null)
             {
-                return new CustomResponse<T>(GetException(ex));
+                return CustomResponse<T>.Error(ex.GetErrorMessage());
             }
             catch (Exception ex)
             {
@@ -219,15 +219,15 @@ namespace WebAPIHelper
         /// <summary>
         /// Extracts an error message from a WebException
         /// </summary>
-        /// <param name="ex">Web exception to be handled</param>
-        /// <returns>Instance of Custom Response with response type = ERROR</returns>
-        private static CustomResponse GetException(WebException ex)
+        /// <param name="we">Web exception to be handled</param>
+        /// <returns>String with containing error message from the response</returns>
+        private static string GetErrorMessage(this WebException we)
         {
-            using (var stream = ex.Response.GetResponseStream())
+            using (var stream = we.Response.GetResponseStream())
             {
                 using (var reader = new StreamReader(stream))
                 {
-                    return CustomResponse.Error(reader.ReadToEnd());
+                    return reader.ReadToEnd();
                 }
             }
         }

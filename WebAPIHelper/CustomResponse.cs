@@ -18,7 +18,7 @@ namespace WebAPIHelper.Models
         /// Type of the response
         /// </summary>
 		public ResponseType ResponseType { get; }
-
+        
         /// <summary>
         /// Information about the response
         /// </summary>
