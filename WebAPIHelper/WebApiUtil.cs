@@ -220,7 +220,7 @@ namespace WebAPIHelper
         /// Extracts an error message from a WebException
         /// </summary>
         /// <param name="we">Web exception to be handled</param>
-        /// <returns>String with containing error message from the response</returns>
+        /// <returns>String containing error message from the response</returns>
         private static string GetErrorMessage(this WebException we)
         {
             using (var stream = we.Response.GetResponseStream())
